@@ -80,5 +80,6 @@
   <ItemGroup>
     <Compile Include="Main.cs" />
     <Compile Include="AppDelegate.cs" />
+    <Compile Include="Menu.cs" />
   </ItemGroup>
 </Project>

@@ -1,7 +1,8 @@
 using System;
-using MonoMac.AppKit;
-using MonoMac.Foundation;
+using System.Linq;
 using System.Drawing;
+using MonoMac.Foundation;
+using MonoMac.AppKit;
 
 namespace HelloWorldXibless
 {
@@ -27,22 +28,43 @@ namespace HelloWorldXibless
 
 		void CreateMenu (string appName)
 		{
-			var mainMenu = new NSMenu();
+			var products = new [] { "Xamarin.iOS", "Xamarin.Android", "Xamarin.Mac" };
 
-			var appMenuItem = new NSMenuItem ();
-			mainMenu.AddItem (appMenuItem);
+            Menu menu = null;
+            MenuItem addNew = null;
+            MenuItem newItem = null;
 
-			var appMenu = new NSMenu ();
+            addNew = new MenuItem("Add new menu item", "", delegate {
+                addNew.Enabled = false;
 
-			var quitMenuItem = new NSMenuItem (String.Format ("Quit {0}", appName), "q", delegate {
-				NSApplication.SharedApplication.Terminate(mainMenu);
-			});
+                newItem = new MenuItem(new Menu("New Menu") {
+                    new MenuItem("Remove this menu", "", delegate {
+                        addNew.Enabled = true;
+                        menu.Remove(newItem);
+                    })
+                });
 
-			appMenu.AddItem (quitMenuItem);
+                menu.Add(newItem);
+            });
 
-			appMenuItem.Submenu = appMenu;
+			menu = new Menu {
+				new MenuItem(
+					new Menu {
+                        addNew,
+                        new MenuItem("-"),
+                        new MenuItem("Quit", "q", delegate {
+                            NSApplication.SharedApplication.Terminate(NSApplication.SharedApplication.MainMenu);
+                        })
+                    }
+                ),
+				new MenuItem(new Menu("Xamarin Products") {
+					from product in products select new MenuItem(product, "",  delegate {
+						Console.WriteLine("Clicked product item: " + product);
+					})
+				}),
+			};
 
-			NSApplication.SharedApplication.MainMenu = mainMenu;
+            NSApplication.SharedApplication.MainMenu = menu;
 		}
 	}
 }
